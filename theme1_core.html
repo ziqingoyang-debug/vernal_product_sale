@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>主题 1：核心指标趋势</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+<style>
+body { font-family: Arial; padding: 20px; }
+.chart { width: 100%; height: 400px; margin-bottom: 30px; }
+button { padding: 8px 16px; background:#2a5cff; color:white; border:none; border-radius:6px; }
+</style>
+</head>
+
+<body>
+
+<button onclick="location.href='index.html'">← 返回首页</button>
+<h1>主题 1：核心指标趋势</h1>
+
+<div id="chart1" class="chart"></div>
+<div id="chart2" class="chart"></div>
+
+<script>
+var months = ["1月","2月","3月","4月","5月","6月"];
+var sales = [120,132,160,180,175,190];
+var revenue = [50000,52000,56000,59000,60000,63000];
+
+function drawChart(id, title, data){
+    var c = echarts.init(document.getElementById(id));
+    c.setOption({
+        title:{text:title},
+        xAxis:{type:"category", data: months},
+        yAxis:{type:"value"},
+        series:[{type:"line", data: data}]
+    });
+}
+
+drawChart("chart1","销量趋势", sales);
+drawChart("chart2","销售额趋势（USD）", revenue);
+</script>
+
+</body>
+</html>
