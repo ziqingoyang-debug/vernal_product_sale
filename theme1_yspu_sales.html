@@ -4,38 +4,66 @@ html = """<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8"/>
-<title>分析主题一 · YSPU 销售表现（完整不丢指标版）</title>
+<title>分析主题一 · YSPU 销售表现（完整终版 · 含悬停 · 不空白）</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
 <style>
-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;background:#f5f6f8;margin:0;padding:24px;color:#222}
-h1{font-size:26px;margin-bottom:6px}
-.subtitle{color:#555;margin-bottom:20px}
-.panel{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
-.filters{display:grid;grid-template-columns:220px 220px 220px 180px 220px 260px;gap:16px}
-.filter-item{display:flex;flex-direction:column;font-size:13px}
-.filter-item label{margin-bottom:4px;color:#666}
-.filter-item select,.filter-item input{padding:6px 10px;border-radius:6px;border:1px solid #ccc}
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-.kpi-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-.kpi-title{font-size:14px;color:#555;margin-bottom:6px}
-.kpi-main{font-size:22px;font-weight:bold}
-.kpi-sub{font-size:12px;color:#777;margin-top:4px}
-.tabs{display:flex;gap:12px;margin-bottom:12px}
-.tab{padding:8px 16px;border-radius:6px;background:#eee;cursor:pointer;font-size:14px}
-.tab.active{background:#2a5cff;color:#fff}
-.chart-row{display:flex;gap:16px}
-.chart-box{flex:1;height:340px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
-.metric-row{display:flex;gap:16px;margin-top:16px}
-.hidden{display:none}
+  body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;background:#f5f6f8;margin:0;padding:24px;color:#222}
+  h1{font-size:26px;margin:0 0 6px}
+  .subtitle{color:#555;margin:0 0 20px}
+
+  .panel{background:#fff;border-radius:12px;padding:16px 20px;margin:0 0 20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .filters{display:grid;grid-template-columns:220px 220px 220px 180px 220px 260px;gap:16px}
+  .filter-item{display:flex;flex-direction:column;font-size:13px}
+  .filter-item label{margin:0 0 4px;color:#666}
+  .filter-item select,.filter-item input{padding:6px 10px;border-radius:6px;border:1px solid #ccc}
+
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .kpi-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 2px 6px rgba(0,0,0,.06);position:relative}
+  .kpi-title{font-size:14px;color:#555;margin:0 0 6px}
+  .kpi-main{font-size:22px;font-weight:700}
+  .kpi-sub{font-size:12px;color:#777;margin-top:4px}
+
+  /* KPI hover tooltip */
+  .kpi-card[data-tip]:hover::after{
+    content:attr(data-tip);
+    position:absolute;
+    bottom:110%;
+    left:10px;
+    background:#222;
+    color:#fff;
+    font-size:12px;
+    padding:6px 8px;
+    border-radius:6px;
+    white-space:nowrap;
+    z-index:10;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .kpi-card[data-tip]:hover::before{
+    content:"";
+    position:absolute;
+    bottom:104%;
+    left:18px;
+    border:6px solid transparent;
+    border-top-color:#222;
+    z-index:10;
+  }
+
+  .tabs{display:flex;gap:12px;margin:0 0 12px}
+  .tab{padding:8px 16px;border-radius:6px;background:#eee;cursor:pointer;font-size:14px;user-select:none}
+  .tab.active{background:#2a5cff;color:#fff}
+  .hidden{display:none}
+
+  .chart-row{display:flex;gap:16px}
+  .chart-box{flex:1;height:340px;background:#fff;border-radius:12px;padding:10px;box-shadow:0 2px 6px rgba(0,0,0,.06)}
+  .metric-row{display:flex;gap:16px;margin-top:16px}
 </style>
 </head>
 <body>
 
 <h1>分析主题一：YSPU 销售表现</h1>
-<div class="subtitle">
-目标：识别主销品和搭售件的销售趋势，对销量偏差做初步拆解（搭售件：单独销售 or 搭售销量不达预期）
-</div>
+<div class="subtitle">目标：识别主销品和搭售件的销售趋势，对销量偏差做初步拆解（搭售件：单独销售 or 搭售销量不达预期）</div>
 
+<!-- 顶部筛选（完整） -->
 <div class="panel">
   <div class="filters">
     <div class="filter-item"><label>销售时间</label><input value="2025-11-01 ~ 2025-11-30"/></div>
@@ -51,7 +79,7 @@ h1{font-size:26px;margin-bottom:6px}
     </div>
 
     <div class="filter-item"><label>类型</label>
-      <select id="typeSelect" onchange="onTypeChange()">
+      <select id="typeSelect">
         <option value="main">主销品</option>
         <option value="attach">搭售件</option>
       </select>
@@ -67,60 +95,62 @@ h1{font-size:26px;margin-bottom:6px}
   </div>
 </div>
 
+<!-- KPI（完整不丢） -->
 <div class="kpi-grid">
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="实际销量：已售出的总件数">
     <div class="kpi-title">销量</div>
     <div class="kpi-main" id="kpiTotalQty">1,280</div>
     <div class="kpi-sub" id="kpiTotalQtySub">预计 1,400 ｜ 偏差 -120</div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="未通过搭售产生的销量（独立购买产生）">
     <div class="kpi-title">单独销量</div>
     <div class="kpi-main" id="kpiIndQty">860</div>
     <div class="kpi-sub" id="kpiIndQtySub">预计 950 ｜ 偏差 -90</div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="通过与主销品一起销售产生的销量（仅“类型=搭售件”适用）">
     <div class="kpi-title">搭售销量</div>
     <div class="kpi-main" id="attachKpi">420</div>
     <div class="kpi-sub" id="attachSub">预计 450 ｜ 偏差 -30</div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="销售额 = 销量 × 件单价">
     <div class="kpi-title">销售额</div>
     <div class="kpi-main" id="kpiRevenue">$512,000</div>
     <div class="kpi-sub" id="kpiRevenueSub"></div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="单件商品的平均成交价格（实际件单价）">
     <div class="kpi-title">件单价（实际）</div>
     <div class="kpi-main" id="kpiUnitPrice">$400</div>
     <div class="kpi-sub" id="kpiUnitPriceSub">备注：实际件单价</div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="运营利润额（示例口径）：销售收入 - 商品成本 - 推广费用">
     <div class="kpi-title">运营利润额</div>
     <div class="kpi-main" id="kpiOpProfit">$138,000</div>
     <div class="kpi-sub" id="kpiOpProfitSub"></div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="运营利润率 = 运营利润额 / 销售额">
     <div class="kpi-title">运营利润率</div>
     <div class="kpi-main" id="kpiOpMargin">27%</div>
     <div class="kpi-sub" id="kpiOpMarginSub">较上月：-1.2pp（示例）</div>
   </div>
 
-  <div class="kpi-card">
+  <div class="kpi-card" data-tip="推广费占比 = 广告推广费用 / 销售额（YSKU 维度不适用）">
     <div class="kpi-title">推广费占比</div>
     <div class="kpi-main" id="kpiAdRatio">18%</div>
     <div class="kpi-sub" id="kpiAdRatioSub">YSKU 维度不适用</div>
   </div>
 </div>
 
+<!-- 拆解区：两个 Tab -->
 <div class="panel">
   <div class="tabs">
-    <div class="tab active" id="tabInd" onclick="showInd()">独立销量</div>
-    <div class="tab" id="tabAtt" onclick="showAtt()">搭售销量</div>
+    <div class="tab active" id="tabInd">独立销量</div>
+    <div class="tab" id="tabAtt">搭售销量</div>
   </div>
 
   <div id="indBlock">
@@ -128,17 +158,17 @@ h1{font-size:26px;margin-bottom:6px}
       <div class="chart-box" id="indTrend"></div>
     </div>
     <div class="metric-row">
-      <div class="kpi-card">
+      <div class="kpi-card" data-tip="流量：产品详情页 session（示例）">
         <div class="kpi-title">流量</div>
         <div class="kpi-main">24,000</div>
         <div class="kpi-sub">预计 26,000 ｜ 偏差 -2,000</div>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card" data-tip="订单转化率：独立销售订单数 / 产品详情页 session（示例）">
         <div class="kpi-title">订单转化率</div>
         <div class="kpi-main">3.6%</div>
         <div class="kpi-sub">预计 3.9% ｜ 偏差 -0.3pp</div>
       </div>
-      <div class="kpi-card">
+      <div class="kpi-card" data-tip="平均购买件数：平均每订单销量（示例）">
         <div class="kpi-title">平均购买件数</div>
         <div class="kpi-main">1.12</div>
         <div class="kpi-sub">预计 1.18 ｜ 偏差 -0.06（平均每订单销量）</div>
@@ -155,9 +185,11 @@ h1{font-size:26px;margin-bottom:6px}
 </div>
 
 <script>
+/** ====== 选项枚举（按你最新口径） ====== */
 const mainSPUList = ["v0.7整桌","柜子","实木贴皮","H风格套系","W风格套系","v0.7Home","夹式排插","电子类独立配件","0.7Edge"];
-const attachSPUList = ["小高台","下抽屉","柜子"];
+const attachSPUList = ["小高台","下抽屉","柜子"]; // 搭售件口径包含“柜子”
 
+/** YSKU：主销品=YSPU+尺寸+颜色；搭售件=YSPU+尺寸+颜色（demo） */
 const mainYSKU = {
   "v0.7整桌": ["v0.7整桌 | 140×70 | 白色","v0.7整桌 | 160×80 | 黑色"],
   "柜子": ["柜子 | 双抽 | 白色","柜子 | 单抽 | 黑色"],
@@ -176,109 +208,152 @@ const attachYSKU = {
   "柜子": ["柜子(搭售) | 双抽 | 白色","柜子(搭售) | 单抽 | 黑色"]
 };
 
+/** ====== 图表实例（全局） ====== */
 let indChart, attCompareChart, attDevChart;
 
-function showInd(){
-  indBlock.style.display = "block";
-  attBlock.style.display = "none";
-  tabInd.classList.add("active");
-  tabAtt.classList.remove("active");
-  indChart && indChart.resize();
+/** ====== ECharts 渲染选项（tooltip=悬停） ====== */
+function setIndChart(){
+  indChart.setOption({
+    title:{text:"独立销量月度趋势"},
+    tooltip:{trigger:"axis"},
+    xAxis:{type:"category",data:["7月","8月","9月","10月","11月"]},
+    yAxis:{type:"value"},
+    series:[{type:"line",data:[720,760,810,830,860]}]
+  });
 }
-function showAtt(){
-  indBlock.style.display = "none";
-  attBlock.style.display = "block";
-  tabInd.classList.remove("active");
-  tabAtt.classList.add("active");
-  attCompareChart && attCompareChart.resize();
-  attDevChart && attDevChart.resize();
+function setAttachCharts(){
+  const expected = [180,120,90,160,110,140,100,80,60];
+  const actual   = [150, 95,70,130, 85,120, 90,60,40];
+  const deviation = actual.map((v,i)=>v-expected[i]);
+
+  attCompareChart.setOption({
+    title:{text:"搭售件在不同主销品下的搭售量（预计 vs 实际）"},
+    tooltip:{trigger:"axis"},
+    legend:{data:["预计","实际"]},
+    xAxis:{type:"category",data:mainSPUList},
+    yAxis:{type:"value"},
+    series:[
+      {name:"预计",type:"bar",data:expected,itemStyle:{color:"#cfd8ff"}},
+      {name:"实际",type:"bar",data:actual,itemStyle:{color:"#2a5cff"}}
+    ]
+  });
+
+  attDevChart.setOption({
+    title:{text:"搭售偏差（实际 - 预计）"},
+    tooltip:{trigger:"axis"},
+    xAxis:{type:"category",data:mainSPUList},
+    yAxis:{type:"value"},
+    series:[{
+      type:"bar",
+      data:deviation,
+      itemStyle:{color:p=>p.value>=0?"#4caf50":"#e53935"}
+    }]
+  });
 }
 
+/** ====== 防空白：显示后 resize（两帧） ====== */
+function safeResize(chart){
+  if(!chart) return;
+  requestAnimationFrame(()=> {
+    chart.resize();
+    requestAnimationFrame(()=> chart.resize());
+  });
+}
+
+/** ====== Tab 切换 ====== */
+function showInd(){
+  document.getElementById("indBlock").style.display="block";
+  document.getElementById("attBlock").style.display="none";
+  document.getElementById("tabInd").classList.add("active");
+  document.getElementById("tabAtt").classList.remove("active");
+  safeResize(indChart);
+}
+function showAtt(){
+  document.getElementById("indBlock").style.display="none";
+  document.getElementById("attBlock").style.display="block";
+  document.getElementById("tabInd").classList.remove("active");
+  document.getElementById("tabAtt").classList.add("active");
+  safeResize(attCompareChart);
+  safeResize(attDevChart);
+}
+
+/** ====== YSKU 联动 ====== */
 function updateYSKU(){
-  const type = typeSelect.value;
-  const spu = yspuSelect.value;
-  yskuSelect.innerHTML = "";
-  const list = (type === "main") ? (mainYSKU[spu] || []) : (attachYSKU[spu] || []);
-  list.forEach(v => {
-    const o = document.createElement("option");
-    o.text = v;
+  const type = document.getElementById("typeSelect").value;
+  const spu = document.getElementById("yspuSelect").value;
+  const yskuSelect = document.getElementById("yskuSelect");
+  yskuSelect.innerHTML="";
+  const list = (type==="main") ? (mainYSKU[spu]||[]) : (attachYSKU[spu]||[]);
+  list.forEach(v=>{
+    const o=document.createElement("option");
+    o.text=v;
     yskuSelect.add(o);
   });
 }
-yspuSelect.onchange = updateYSKU;
 
+/** ====== 类型切换规则（你明确的两条） ====== */
 function onTypeChange(){
-  const type = typeSelect.value;
+  const type = document.getElementById("typeSelect").value;
+  const yspuSelect = document.getElementById("yspuSelect");
 
-  yspuSelect.innerHTML = "";
-  const list = (type === "main") ? mainSPUList : attachSPUList;
-  list.forEach(v => {
-    const o = document.createElement("option");
-    o.text = v;
+  // 切 YSPU 枚举
+  yspuSelect.innerHTML="";
+  const list = (type==="main") ? mainSPUList : attachSPUList;
+  list.forEach(v=>{
+    const o=document.createElement("option");
+    o.text=v;
     yspuSelect.add(o);
   });
 
+  // 刷新 YSKU
   updateYSKU();
 
-  if(type === "main"){
-    attachKpi.innerText = "0";
-    attachSub.innerText = "仅搭售件适用";
-    tabAtt.classList.add("hidden");
+  // KPI & Tab：主销品搭售销量=0；搭售件必须有值且搭售 Tab 不为空
+  if(type==="main"){
+    document.getElementById("attachKpi").innerText="0";
+    document.getElementById("attachSub").innerText="仅搭售件适用";
+    document.getElementById("tabAtt").classList.add("hidden");
     showInd();
   }else{
-    attachKpi.innerText = "420";
-    attachSub.innerText = "预计 450 ｜ 偏差 -30";
-    tabAtt.classList.remove("hidden");
-    showAtt();
+    document.getElementById("attachKpi").innerText="420";
+    document.getElementById("attachSub").innerText="预计 450 ｜ 偏差 -30";
+    document.getElementById("tabAtt").classList.remove("hidden");
+    showAtt(); // 默认切到搭售销量，保证下钻可见
+    // 关键：显示后再 resize，避免“看起来空白”
+    safeResize(attCompareChart);
+    safeResize(attDevChart);
   }
 }
 
+/** ====== 绑定事件 ====== */
+document.getElementById("tabInd").addEventListener("click", showInd);
+document.getElementById("tabAtt").addEventListener("click", showAtt);
+document.getElementById("typeSelect").addEventListener("change", onTypeChange);
+document.getElementById("yspuSelect").addEventListener("change", updateYSKU);
+
+/** ====== 初始化图表 ====== */
 indChart = echarts.init(document.getElementById("indTrend"));
-indChart.setOption({
-  title:{text:"独立销量月度趋势"},
-  tooltip:{trigger:"axis"},
-  xAxis:{type:"category",data:["7月","8月","9月","10月","11月"]},
-  yAxis:{type:"value"},
-  series:[{type:"line",data:[720,760,810,830,860]}]
-});
-
-const expected = [180,120,90,160,110,140,100,80,60];
-const actual   = [150, 95,70,130, 85,120, 90,60,40];
-const deviation = actual.map((v,i)=>v-expected[i]);
-
 attCompareChart = echarts.init(document.getElementById("attCompare"));
-attCompareChart.setOption({
-  title:{text:"搭售件在不同主销品下的搭售量（预计 vs 实际）"},
-  tooltip:{trigger:"axis"},
-  legend:{data:["预计","实际"]},
-  xAxis:{type:"category",data:mainSPUList},
-  yAxis:{type:"value"},
-  series:[
-    {name:"预计",type:"bar",data:expected,itemStyle:{color:"#cfd8ff"}},
-    {name:"实际",type:"bar",data:actual,itemStyle:{color:"#2a5cff"}}
-  ]
-});
-
 attDevChart = echarts.init(document.getElementById("attDev"));
-attDevChart.setOption({
-  title:{text:"搭售偏差（实际 - 预计）"},
-  tooltip:{trigger:"axis"},
-  xAxis:{type:"category",data:mainSPUList},
-  yAxis:{type:"value"},
-  series:[{
-    type:"bar",
-    data:deviation,
-    itemStyle:{color:p=>p.value>=0?"#4caf50":"#e53935"}
-  }]
-});
+setIndChart();
+setAttachCharts();
 
-typeSelect.value = "main";
+/** ====== 首次加载：默认主销品，并确保主销品搭售销量=0 ====== */
+document.getElementById("typeSelect").value="main";
 onTypeChange();
+
+/** 窗口变化也 resize，避免布局变化导致空白 */
+window.addEventListener("resize", ()=>{
+  safeResize(indChart);
+  safeResize(attCompareChart);
+  safeResize(attDevChart);
+});
 </script>
 
 </body>
 </html>
 """
-path = "/mnt/data/theme1_yspu_sales_no_missing_kpis.html"
+
+path = "/mnt/data/theme1_yspu_sales_with_hover_fixed_no_blank.html"
 Path(path).write_text(html, encoding="utf-8")
 path
