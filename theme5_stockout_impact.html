@@ -1,0 +1,132 @@
+html = """
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<title>分析主题五 · 断货影响（完整版 · 含计算公式）</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;background:#f5f6f8;margin:0;padding:24px;color:#222}
+  h1{font-size:26px;margin-bottom:6px}
+  .subtitle{color:#555;margin-bottom:20px}
+
+  .panel{background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+  .filters{display:grid;grid-template-columns:220px 220px 220px 180px 220px 260px;gap:16px}
+  .filter-item{display:flex;flex-direction:column;font-size:13px}
+  .filter-item label{margin-bottom:4px;color:#666}
+  .filter-item select,.filter-item input{padding:6px 10px;border-radius:6px;border:1px solid #ccc}
+
+  .chart-box{height:360px;margin-top:12px}
+  .chart-title{font-size:16px;font-weight:600;margin-bottom:4px}
+  .chart-question{font-size:13px;color:#666;margin-bottom:4px}
+  .chart-formula{
+    font-size:13px;
+    color:#333;
+    background:#f7f8fa;
+    border-left:4px solid #2a5cff;
+    padding:8px 12px;
+    margin-bottom:8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>分析主题五：断货影响</h1>
+<div class="subtitle">
+目标：判断销量与转化异常是否由断货导致，并量化断货带来的直接销售损失
+</div>
+
+<!-- 顶部查询控件 -->
+<div class="panel">
+  <div class="filters">
+    <div class="filter-item"><label>销售时间</label><input value="2025-11-01 ~ 2025-11-30"/></div>
+    <div class="filter-item"><label>场景</label>
+      <select multiple>
+        <option>基础场景</option><option>行政场景</option><option>H 场景</option><option>S 场景</option>
+      </select>
+    </div>
+    <div class="filter-item"><label>国家</label>
+      <select multiple><option>US</option><option>DE</option><option>UK</option></select>
+    </div>
+    <div class="filter-item"><label>类型</label>
+      <select><option>主销品</option><option>搭售件</option></select>
+    </div>
+    <div class="filter-item"><label>YSPU</label>
+      <select><option>v0.7整桌</option><option>柜子</option><option>小高台</option></select>
+    </div>
+    <div class="filter-item"><label>YSKU</label>
+      <select><option>v0.7整桌 | 140×70 | 白色</option></select>
+    </div>
+  </div>
+</div>
+
+<!-- 图表 1：断货天数趋势 -->
+<div class="panel">
+  <div class="chart-title">近 30 天断货天数趋势</div>
+  <div class="chart-question">
+    本图回答的问题：销量或转化下滑，是否与断货频率上升直接相关？
+  </div>
+  <div id="stockoutDays" class="chart-box"></div>
+</div>
+
+<!-- 图表 2：断货损失 -->
+<div class="panel">
+  <div class="chart-title">断货造成的销售损失（金额）</div>
+  <div class="chart-question">
+    本图回答的问题：断货对销售收入的直接影响有多大，是否已经成为主要限制因素？
+  </div>
+  <div class="chart-formula">
+    计算公式：<br/>
+    <strong>断货造成的销售损失（金额） = 近三十日平均日销售金额 × 近三十日断货天数</strong>
+  </div>
+  <div id="stockoutLoss" class="chart-box"></div>
+</div>
+
+<script>
+const stockoutDaysChart = echarts.init(document.getElementById('stockoutDays'));
+const stockoutLossChart = echarts.init(document.getElementById('stockoutLoss'));
+
+// 断货天数趋势
+stockoutDaysChart.setOption({
+  tooltip:{trigger:'axis'},
+  xAxis:{type:'category',data:['11/1','11/5','11/10','11/15','11/20','11/25','11/30']},
+  yAxis:{type:'value',name:'断货天数'},
+  series:[{
+    type:'bar',
+    data:[0,1,2,3,2,4,1],
+    itemStyle:{color:'#ff9800'}
+  }]
+});
+
+// 断货损失金额
+stockoutLossChart.setOption({
+  tooltip:{
+    trigger:'axis',
+    formatter: v => `断货损失金额：$${v[0].value.toLocaleString()}`
+  },
+  xAxis:{type:'category',data:['11/1','11/5','11/10','11/15','11/20','11/25','11/30']},
+  yAxis:{type:'value',name:'损失金额 ($)'},
+  series:[{
+    type:'line',
+    data:[0,1200,3600,7200,5400,9800,2600],
+    symbol:'circle',
+    lineStyle:{width:3,color:'#e53935'},
+    itemStyle:{color:'#e53935'}
+  }]
+});
+
+window.addEventListener('resize', ()=>{
+  stockoutDaysChart.resize();
+  stockoutLossChart.resize();
+});
+</script>
+
+</body>
+</html>
+"""
+
+path = "/mnt/data/theme5_stockout_impact.html"
+with open(path, "w", encoding="utf-8") as f:
+    f.write(html)
+
+path
