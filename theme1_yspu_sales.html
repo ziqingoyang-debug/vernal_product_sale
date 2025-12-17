@@ -10,6 +10,16 @@ html = """<!DOCTYPE html>
 <title>分析主题一 · YSPU 销售表现</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
 <style>
+ .back-home{
+  display:inline-block;
+  margin-bottom:12px;
+  font-size:14px;
+  color:#2a5cff;
+  text-decoration:none;
+}
+.back-home:hover{
+  text-decoration:underline;
+}
   *{box-sizing:border-box}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;background:#f5f6f8;margin:0;padding:24px;color:#222}
   h1{font-size:26px;margin:0 0 6px}
@@ -73,7 +83,7 @@ html = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-
+<a href="index.html" class="back-home">← 返回首页</a>
 <h1>分析主题一：YSPU 销售表现</h1>
 <div class="subtitle">
   目标：识别主销品和搭售件的销售趋势，对销量偏差做初步拆解（搭售件：单独销售不达预期 or 搭售销量不达预期）
