@@ -1,66 +1,1129 @@
+from pathlib import Path
+
+html = """
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<title>主题 3：流量转化表现</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>分析主题三 · 流量转化表现</title>
 <script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
 <style>
-body { font-family: Arial; padding: 20px; }
-.chart { width: 100%; height: 400px; margin-bottom: 30px; }
-button { padding: 8px 16px; background:#2a5cff; color:white; border:none; border-radius:6px; }
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 24px;
+  background: #f5f6f8;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color: #222;
+  min-width: 1200px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 26px;
+}
+
+.subtitle {
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: 240px 220px 220px 260px;
+  gap: 16px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+}
+
+.filter-item label {
+  margin-bottom: 4px;
+  color: #666;
+  font-weight: 500;
+}
+
+.filter-item select,
+.filter-item input {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d5dd;
+  background-color: #fff;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.filter-item select:focus,
+.filter-item input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.filter-item select[multiple] {
+  height: 80px;
+  padding: 6px 10px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .08);
+}
+
+.kpi-card:hover .formula-tooltip {
+  display: block;
+}
+
+.kpi-title {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.kpi-card:nth-child(1) .kpi-value {
+  color: #3b82f6;
+}
+
+.kpi-card:nth-child(2) .kpi-value {
+  color: #10b981;
+}
+
+.kpi-card:nth-child(3) .kpi-value {
+  color: #f59e0b;
+}
+
+.kpi-card:nth-child(4) .kpi-value {
+  color: #ef4444;
+}
+
+.formula-tooltip {
+  display: none;
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #1f2937;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 100;
+  width: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  line-height: 1.4;
+}
+
+.formula-tooltip:after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  right: 100%;
+  border-width: 8px;
+  border-style: solid;
+  border-color: transparent #1f2937 transparent transparent;
+}
+
+.chart-box {
+  height: 340px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
+  position: relative;
+}
+
+.chart-row {
+  display: flex;
+  gap: 16px;
+}
+
+.chart-half {
+  flex: 1;
+}
+
+.formula-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #3b82f6;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.formula-modal {
+  display: none;
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #1f2937;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  z-index: 100;
+  width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  line-height: 1.5;
+}
+
+.formula-badge:hover .formula-modal {
+  display: block;
+}
+
+.chart-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.panel h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #333;
+  font-size: 18px;
+}
+
+.channel-selector {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.channel-selector label {
+  margin-right: 10px;
+  font-weight: 500;
+}
+
+.channel-selector select {
+  width: 200px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d0d5dd;
+  background-color: #fff;
+  font-size: 14px;
+}
+
+@media (max-width: 1400px) {
+  body {
+    min-width: 1000px;
+  }
+  
+  .filters {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1100px) {
+  .chart-row {
+    flex-direction: column;
+  }
+  
+  .chart-half {
+    width: 100%;
+  }
+}
+
+.info-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-color: #6b7280;
+  color: white;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  cursor: help;
+  margin-left: 4px;
+}
 </style>
 </head>
 
 <body>
 
-<button onclick="location.href='index.html'">← 返回首页</button>
-<h1>主题 3：流量转化表现</h1>
+<h1>分析主题三：流量转化表现</h1>
+<div class="subtitle">
+  目标：评估各广告渠道的流量贡献与转化质量，判断投流效率与费比是否健康<br>
+  <strong>分析逻辑：</strong>整体指标 → 广告渠道分布对比 → 单个广告渠道下钻分析
+</div>
 
-<div id="chart1" class="chart"></div>
-<div id="chart2" class="chart"></div>
-<div id="chart3" class="chart"></div>
+<!-- 查询控件 -->
+<div class="panel">
+  <div class="filters">
+    <div class="filter-item">
+      <label>销售时间</label>
+      <input type="text" value="2025-11-01 ~ 2025-11-30" />
+    </div>
+    <div class="filter-item">
+      <label>场景</label>
+      <select multiple>
+        <option selected>基础场景</option>
+        <option>行政场景</option>
+        <option>H 场景</option>
+        <option>S 场景</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <label>国家</label>
+      <select multiple>
+        <option selected>US</option>
+        <option selected>DE</option>
+        <option>UK</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <label>YSPU</label>
+      <select>
+        <option>全部</option>
+        <option>v0.7整桌</option>
+        <option>柜子</option>
+        <option>小高台</option>
+        <option>下抽屉</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- 核心指标（整体） -->
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-title">运营销售收入（整体）<span class="info-icon" title="整体收入包括投流和自然流量带来的收入">i</span></div>
+    <div class="kpi-value">$1,280,000</div>
+    <div class="formula-tooltip">
+      <strong>计算逻辑：</strong><br>
+      运营销售收入 = 投流收入 + 自然流量收入<br>
+      = $980,000 (投流) + $300,000 (自然)<br>
+      <br>
+      <strong>数据来源：</strong>订单系统-已完成订单金额
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-title">费比<span class="info-icon" title="广告推广费用占运营销售收入的比例">i</span></div>
+    <div class="kpi-value">22%</div>
+    <div class="formula-tooltip">
+      <strong>计算公式：</strong><br>
+      费比 = 广告推广费用 / 运营销售收入 × 100%<br>
+      = $281,600 / $1,280,000 × 100%<br>
+      = 22%<br>
+      <br>
+      <strong>健康范围：</strong>15%-25%
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-title">独立销售流量（Session）<span class="info-icon" title="产品详情页的访问会话数">i</span></div>
+    <div class="kpi-value">128,000</div>
+    <div class="formula-tooltip">
+      <strong>计算逻辑：</strong><br>
+      独立销售流量 = 产品详情页Session总数<br>
+      = 广告流量 + 自然流量<br>
+      = 112,000 + 16,000<br>
+      <br>
+      <strong>统计口径：</strong>去重后的独立访问会话数
+    </div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-title">独立销售转化率<span class="info-icon" title="独立销售订单与产品详情页访问的比例">i</span></div>
+    <div class="kpi-value">2.6%</div>
+    <div class="formula-tooltip">
+      <strong>计算公式：</strong><br>
+      独立销售转化率 = 独立销售订单数量 / 产品详情页Session × 100%<br>
+      = 3,328 / 128,000 × 100%<br>
+      = 2.6%<br>
+      <br>
+      <strong>行业基准：</strong>2.0%-3.5%
+    </div>
+  </div>
+</div>
+
+<br/>
+
+<!-- 广告渠道分布 -->
+<div class="chart-row">
+  <div class="chart-half">
+    <div class="chart-box" id="adTrafficPie">
+      <div class="chart-title">广告流量分布</div>
+      <div class="formula-badge">
+        计算逻辑
+        <div class="formula-modal">
+          <strong>指标定义：</strong><br>
+          广告流量 = 各广告渠道带来的SPU商详页Session数<br>
+          <br>
+          <strong>统计口径：</strong><br>
+          • Google：通过Google Ads访问的Session<br>
+          • Meta：通过Facebook/Instagram广告访问的Session<br>
+          • KOL：通过KOL合作内容访问的Session<br>
+          • Social：通过其他社交广告访问的Session<br>
+          • Reddit：通过Reddit广告访问的Session
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-half">
+    <div class="chart-box" id="adCostPie">
+      <div class="chart-title">广告推广费用占比</div>
+      <div class="formula-badge">
+        计算逻辑
+        <div class="formula-modal">
+          <strong>指标定义：</strong><br>
+          广告推广费用 = 各渠道实际广告投放支出<br>
+          <br>
+          <strong>统计口径：</strong><br>
+          • 包含：媒体购买费用、平台服务费<br>
+          • 不包含：内容制作成本、人员成本<br>
+          <br>
+          <strong>计算公式：</strong><br>
+          渠道费用占比 = 渠道费用 / 总广告费用 × 100%
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<br/>
+
+<div class="panel">
+  <h3>广告渠道转化率趋势</h3>
+  <div class="chart-box" id="adCvrTrend">
+    <div class="formula-badge">
+      计算逻辑
+      <div class="formula-modal">
+        <strong>计算公式：</strong><br>
+        广告渠道转化率 = 渠道带来含SPU订单数 / 渠道带来的SPU商详页Session数 × 100%<br>
+        <br>
+        <strong>计算示例（Google 11月）：</strong><br>
+        = 1,024订单 / 32,000 Session × 100%<br>
+        = 3.2%<br>
+        <br>
+        <strong>趋势分析要点：</strong><br>
+        1. 对比各渠道转化效率<br>
+        2. 观察月度变化趋势<br>
+        3. 识别异常波动
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 单一广告渠道下钻 -->
+<div class="panel">
+  <h3>单一广告渠道分析</h3>
+  <div class="channel-selector">
+    <label for="channelSelect">广告渠道（单选）:</label>
+    <select id="channelSelect">
+      <option value="Google" selected>Google</option>
+      <option value="Meta">Meta</option>
+      <option value="KOL">KOL</option>
+      <option value="Social">Social</option>
+      <option value="Reddit">Reddit</option>
+    </select>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-title">流量<span class="info-icon" title="该广告渠道带来的SPU商详页Session数">i</span></div>
+      <div class="kpi-value">32,000</div>
+      <div class="formula-tooltip">
+        <strong>指标定义：</strong><br>
+        该广告渠道带来的SPU商详页Session数<br>
+        <br>
+        <strong>Google 11月数据：</strong><br>
+        • 总访问：32,000 Session<br>
+        • 环比增长：+7.9%
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">转化率<span class="info-icon" title="该渠道带来订单数与流量的比例">i</span></div>
+      <div class="kpi-value">3.1%</div>
+      <div class="formula-tooltip">
+        <strong>计算公式：</strong><br>
+        转化率 = 渠道带来含SPU订单数 / 渠道带来的SPU商详页Session数 × 100%<br>
+        <br>
+        <strong>Google 11月计算：</strong><br>
+        = 992订单 / 32,000 Session × 100%<br>
+        = 3.1%<br>
+        <br>
+        <strong>渠道排名：</strong>2/5
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">广告推广费用<span class="info-icon" title="该渠道实际广告投放支出">i</span></div>
+      <div class="kpi-value">$120,000</div>
+      <div class="formula-tooltip">
+        <strong>指标定义：</strong><br>
+        该渠道实际广告投放支出<br>
+        <br>
+        <strong>Google 11月费用明细：</strong><br>
+        • 搜索广告：$80,000<br>
+        • 展示广告：$30,000<br>
+        • 视频广告：$10,000<br>
+        <br>
+        <strong>费用占比：</strong>42.6%
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">费比<span class="info-icon" title="该渠道广告费用带来的收入占比">i</span></div>
+      <div class="kpi-value">19%</div>
+      <div class="formula-tooltip">
+        <strong>计算公式：</strong><br>
+        渠道费比 = 渠道广告费用 / 渠道带来销售收入 × 100%<br>
+        <br>
+        <strong>Google 11月计算：</strong><br>
+        = $120,000 / $631,579 × 100%<br>
+        = 19%<br>
+        <br>
+        <strong>渠道效率评价：</strong>良好
+      </div>
+    </div>
+  </div>
+
+  <br/>
+
+  <div class="chart-row">
+    <div class="chart-half">
+      <div class="chart-box" id="trafficTrend">
+        <div class="chart-title">广告渠道流量趋势</div>
+        <div class="formula-badge">
+          计算逻辑
+          <div class="formula-modal">
+            <strong>指标：</strong>各月广告渠道带来的SPU商详页Session数<br>
+            <br>
+            <strong>分析要点：</strong><br>
+            1. 观察流量增长趋势<br>
+            2. 识别季节性波动<br>
+            3. 评估渠道稳定性
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-half">
+      <div class="chart-box" id="cvrTrend">
+        <div class="chart-title">广告渠道转化率趋势</div>
+        <div class="formula-badge">
+          计算逻辑
+          <div class="formula-modal">
+            <strong>计算公式：</strong><br>
+            月转化率 = 月渠道订单数 / 月渠道Session数 × 100%<br>
+            <br>
+            <strong>分析要点：</strong><br>
+            1. 观察转化率变化趋势<br>
+            2. 识别优化效果<br>
+            3. 对比行业基准
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br/>
+
+  <div class="chart-row">
+    <div class="chart-half">
+      <div class="chart-box" id="costTrend">
+        <div class="chart-title">广告费用趋势</div>
+        <div class="formula-badge">
+          计算逻辑
+          <div class="formula-modal">
+            <strong>指标：</strong>各月实际广告投放支出<br>
+            <br>
+            <strong>分析要点：</strong><br>
+            1. 观察费用投入变化<br>
+            2. 评估ROI趋势<br>
+            3. 预算执行情况
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="chart-half">
+      <div class="chart-box" id="costRateTrend">
+        <div class="chart-title">费比趋势</div>
+        <div class="formula-badge">
+          计算逻辑
+          <div class="formula-modal">
+            <strong>计算公式：</strong><br>
+            月费比 = 月广告费用 / 月渠道销售收入 × 100%<br>
+            <br>
+            <strong>分析要点：</strong><br>
+            1. 观察费比变化趋势<br>
+            2. 评估投放效率<br>
+            3. 健康范围：15%-25%
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" style="text-align: center; background: #f0f9ff;">
+  <h3 style="color: #0369a1;">指标计算逻辑说明</h3>
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; text-align: left; margin-top: 16px;">
+    <div>
+      <h4 style="margin-top: 0; color: #0c4a6e;">核心指标定义</h4>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+        <li><strong>运营销售收入</strong>：包括投流和自然流量带来的全部订单收入</li>
+        <li><strong>费比</strong>：广告推广费用占运营销售收入的比例，评估投放效率</li>
+        <li><strong>独立销售流量</strong>：产品详情页的去重访问会话数（Session）</li>
+        <li><strong>独立销售转化率</strong>：独立销售订单与产品详情页访问的比例</li>
+      </ul>
+    </div>
+    <div>
+      <h4 style="margin-top: 0; color: #0c4a6e;">广告渠道指标</h4>
+      <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+        <li><strong>渠道流量</strong>：广告渠道带来的SPU商详页Session数</li>
+        <li><strong>渠道转化率</strong>：渠道带来含SPU订单数 / 渠道Session数</li>
+        <li><strong>渠道费用</strong>：渠道实际广告投放支出</li>
+        <li><strong>渠道费比</strong>：渠道广告费用 / 渠道带来销售收入</li>
+      </ul>
+    </div>
+  </div>
+</div>
 
 <script>
-var channels = ["Google", "Meta", "KOL", "Social", "Reddit"];
+// 广告渠道数据
+const channels = ["Google", "Meta", "KOL", "Social", "Reddit"];
+const months = ["7月", "8月", "9月", "10月", "11月"];
 
-var c1 = echarts.init(document.getElementById("chart1"));
-c1.setOption({
-    title:{text:"Session 占比"},
-    series:[{
-        type:"pie",
-        data:[
-            {value:335, name:"Google"},
-            {value:240, name:"Meta"},
-            {value:180, name:"KOL"},
-            {value:150, name:"Social"},
-            {value:90, name:"Reddit"}
-        ]
+// 各广告渠道详细数据
+const channelData = {
+  Google: {
+    name: "Google",
+    traffic: [6000, 6500, 7000, 7600, 8200],
+    cvr: [2.9, 3.0, 3.0, 3.1, 3.2],
+    cost: [20000, 22000, 24000, 26000, 28000],
+    costRate: [20, 19, 19, 18, 18],
+    revenue: [68966, 73333, 80000, 83871, 92000],
+    orders: [174, 195, 210, 236, 262]
+  },
+  Meta: {
+    name: "Meta",
+    traffic: [5500, 6000, 6400, 6800, 7200],
+    cvr: [2.4, 2.5, 2.6, 2.6, 2.7],
+    cost: [18000, 20000, 22000, 24000, 26000],
+    costRate: [22, 21, 21, 20, 19],
+    revenue: [81818, 95238, 104762, 120000, 136842],
+    orders: [132, 150, 166, 177, 194]
+  },
+  KOL: {
+    name: "KOL",
+    traffic: [3000, 3200, 3500, 3800, 4000],
+    cvr: [3.2, 3.3, 3.4, 3.5, 3.6],
+    cost: [15000, 16000, 18000, 20000, 22000],
+    costRate: [18, 17, 16, 15, 14],
+    revenue: [83333, 94118, 112500, 133333, 157143],
+    orders: [96, 106, 119, 133, 144]
+  },
+  Social: {
+    name: "Social",
+    traffic: [2500, 2800, 3000, 3200, 3400],
+    cvr: [1.9, 2.0, 2.1, 2.1, 2.2],
+    cost: [12000, 13000, 14000, 15000, 16000],
+    costRate: [25, 24, 23, 22, 21],
+    revenue: [48000, 54167, 60870, 68182, 76190],
+    orders: [48, 56, 63, 67, 75]
+  },
+  Reddit: {
+    name: "Reddit",
+    traffic: [1200, 1400, 1600, 1800, 2000],
+    cvr: [1.5, 1.6, 1.7, 1.8, 1.9],
+    cost: [6000, 7000, 8000, 9000, 10000],
+    costRate: [30, 28, 26, 24, 22],
+    revenue: [20000, 25000, 30769, 37500, 45455],
+    orders: [18, 22, 27, 32, 38]
+  }
+};
+
+// 初始化所有图表
+function initCharts() {
+  // 1. 广告流量分布饼图 - 添加标题到图表配置中
+  const trafficPieChart = echarts.init(document.getElementById('adTrafficPie'));
+  trafficPieChart.setOption({
+    title: {
+      text: '广告流量分布',
+      left: 'center',
+      top: 10,
+      textStyle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        const total = 112000;
+        const percent = ((params.value / total) * 100).toFixed(1);
+        return `${params.name}<br/>流量: ${params.value.toLocaleString()} Session<br/>占比: ${percent}%`;
+      }
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'center'
+    },
+    series: [{
+      name: '流量分布',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 8,
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      label: {
+        show: false,
+        position: 'center'
+      },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: '16',
+          fontWeight: 'bold'
+        }
+      },
+      labelLine: {
+        show: false
+      },
+      data: [
+        { name: 'Google', value: 42000 },
+        { name: 'Meta', value: 36000 },
+        { name: 'KOL', value: 18000 },
+        { name: 'Social', value: 16000 },
+        { name: 'Reddit', value: 8000 }
+      ],
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
     }]
-});
+  });
 
-var c2 = echarts.init(document.getElementById("chart2"));
-c2.setOption({
-    title:{text:"渠道推广费用占比"},
-    series:[{
-        type:"pie",
-        data:[
-            {value:50000, name:"Google"},
-            {value:32000, name:"Meta"},
-            {value:15000, name:"KOL"},
-            {value:12000, name:"Social"},
-            {value:8000,  name:"Reddit"}
-        ]
+  // 2. 广告推广费用占比饼图 - 添加标题到图表配置中
+  const costPieChart = echarts.init(document.getElementById('adCostPie'));
+  costPieChart.setOption({
+    title: {
+      text: '广告推广费用占比',
+      left: 'center',
+      top: 10,
+      textStyle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'item',
+      formatter: function(params) {
+        const total = 530000;
+        const percent = ((params.value / total) * 100).toFixed(1);
+        return `${params.name}<br/>费用: $${params.value.toLocaleString()}<br/>占比: ${percent}%`;
+      }
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'center'
+    },
+    series: [{
+      name: '费用占比',
+      type: 'pie',
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      itemStyle: {
+        borderRadius: 8,
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      label: {
+        show: false,
+        position: 'center'
+      },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: '16',
+          fontWeight: 'bold'
+        }
+      },
+      labelLine: {
+        show: false
+      },
+      data: [
+        { name: 'Google', value: 180000 },
+        { name: 'Meta', value: 150000 },
+        { name: 'KOL', value: 90000 },
+        { name: 'Social', value: 70000 },
+        { name: 'Reddit', value: 40000 }
+      ],
+      color: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
     }]
-});
+  });
 
-var c3 = echarts.init(document.getElementById("chart3"));
-c3.setOption({
-    title:{text:"流量趋势"},
-    xAxis:{data:["1月","2月","3月","4月","5月","6月"]},
-    yAxis:{},
-    series:[{type:"line", data:[3000,3200,3400,3600,3500,3700]}]
+  // 3. 广告渠道转化率趋势图
+  const cvrTrendChart = echarts.init(document.getElementById('adCvrTrend'));
+  cvrTrendChart.setOption({
+    title: {
+      text: '各广告渠道转化率趋势',
+      left: 'center',
+      textStyle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#333'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
+      },
+      formatter: function(params) {
+        let result = params[0].name + '<br/>';
+        params.forEach(function(item) {
+          result += `${item.marker} ${item.seriesName}: ${item.value}%<br/>`;
+        });
+        return result;
+      }
+    },
+    legend: {
+      data: channels,
+      top: 30
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: months
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value}%'
+      },
+      min: 1
+    },
+    series: [
+      {
+        name: 'Google',
+        type: 'line',
+        smooth: true,
+        data: [2.9, 3.0, 3.0, 3.1, 3.2],
+        itemStyle: { color: '#3b82f6' }
+      },
+      {
+        name: 'Meta',
+        type: 'line',
+        smooth: true,
+        data: [2.4, 2.5, 2.6, 2.6, 2.7],
+        itemStyle: { color: '#10b981' }
+      },
+      {
+        name: 'KOL',
+        type: 'line',
+        smooth: true,
+        data: [3.2, 3.3, 3.4, 3.5, 3.6],
+        itemStyle: { color: '#f59e0b' }
+      },
+      {
+        name: 'Social',
+        type: 'line',
+        smooth: true,
+        data: [1.9, 2.0, 2.1, 2.1, 2.2],
+        itemStyle: { color: '#ef4444' }
+      },
+      {
+        name: 'Reddit',
+        type: 'line',
+        smooth: true,
+        data: [1.5, 1.6, 1.7, 1.8, 1.9],
+        itemStyle: { color: '#8b5cf6' }
+      }
+    ]
+  });
+
+  // 4. 初始化单个渠道图表
+  renderChannelCharts('Google');
+}
+
+// 渲染单个广告渠道图表
+function renderChannelCharts(channel = 'Google') {
+  const data = channelData[channel];
+  const color = channel === 'Google' ? '#3b82f6' : 
+                channel === 'Meta' ? '#10b981' : 
+                channel === 'KOL' ? '#f59e0b' : 
+                channel === 'Social' ? '#ef4444' : '#8b5cf6';
+  
+  // 流量趋势图
+  const trafficChart = echarts.init(document.getElementById('trafficTrend'));
+  trafficChart.setOption({
+    title: {
+      text: `${channel} 流量趋势`,
+      left: 'center',
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: '{b}: {c} Session'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: months
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [{
+      name: '流量',
+      type: 'line',
+      smooth: true,
+      data: data.traffic,
+      itemStyle: { color: color },
+      areaStyle: {
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: color + '80' },
+          { offset: 1, color: color + '10' }
+        ])
+      }
+    }]
+  });
+  
+  // 转化率趋势图
+  const cvrChart = echarts.init(document.getElementById('cvrTrend'));
+  cvrChart.setOption({
+    title: {
+      text: `${channel} 转化率趋势`,
+      left: 'center',
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: '{b}: {c}%'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: months
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value}%'
+      }
+    },
+    series: [{
+      name: '转化率',
+      type: 'line',
+      smooth: true,
+      data: data.cvr,
+      itemStyle: { color: color },
+      lineStyle: {
+        width: 3
+      }
+    }]
+  });
+  
+  // 广告费用趋势图
+  const costChart = echarts.init(document.getElementById('costTrend'));
+  costChart.setOption({
+    title: {
+      text: `${channel} 广告费用趋势`,
+      left: 'center',
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: '{b}: ${c}'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: months
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '${value}'
+      }
+    },
+    series: [{
+      name: '广告费用',
+      type: 'bar',
+      data: data.cost,
+      itemStyle: { color: color }
+    }]
+  });
+  
+  // 费比趋势图
+  const costRateChart = echarts.init(document.getElementById('costRateTrend'));
+  costRateChart.setOption({
+    title: {
+      text: `${channel} 费比趋势`,
+      left: 'center',
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: '{b}: {c}%'
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      top: '15%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: months
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        formatter: '{value}%'
+      }
+    },
+    series: [{
+      name: '费比',
+      type: 'line',
+      smooth: true,
+      data: data.costRate,
+      itemStyle: { color: color },
+      lineStyle: {
+        type: 'dashed',
+        width: 2
+      }
+    }]
+  });
+}
+
+// 更新单一广告渠道的KPI卡片
+function updateChannelKPIs(channel) {
+  const data = channelData[channel];
+  const totalTraffic = data.traffic.reduce((a, b) => a + b, 0);
+  const avgCvr = (data.cvr.reduce((a, b) => a + b, 0) / data.cvr.length).toFixed(1);
+  const totalCost = data.cost.reduce((a, b) => a + b, 0);
+  const avgCostRate = (data.costRate.reduce((a, b) => a + b, 0) / data.costRate.length).toFixed(0);
+  
+  // 更新KPI值
+  const kpiCards = document.querySelectorAll('.panel:last-child .kpi-card');
+  kpiCards[0].querySelector('.kpi-value').textContent = totalTraffic.toLocaleString();
+  kpiCards[1].querySelector('.kpi-value').textContent = avgCvr + '%';
+  kpiCards[2].querySelector('.kpi-value').textContent = '$' + totalCost.toLocaleString();
+  kpiCards[3].querySelector('.kpi-value').textContent = avgCostRate + '%';
+}
+
+// 页面加载时初始化
+document.addEventListener('DOMContentLoaded', function() {
+  // 初始化所有图表
+  initCharts();
+  updateChannelKPIs('Google');
+  
+  // 监听渠道选择变化
+  document.getElementById('channelSelect').addEventListener('change', function() {
+    const selectedChannel = this.value;
+    renderChannelCharts(selectedChannel);
+    updateChannelKPIs(selectedChannel);
+  });
+  
+  // 添加窗口大小调整监听
+  window.addEventListener('resize', function() {
+    // 重新调整所有图表大小
+    const chartIds = ['adTrafficPie', 'adCostPie', 'adCvrTrend', 'trafficTrend', 'cvrTrend', 'costTrend', 'costRateTrend'];
+    chartIds.forEach(id => {
+      const chartDom = document.getElementById(id);
+      if (chartDom) {
+        const chart = echarts.getInstanceByDom(chartDom);
+        if (chart) {
+          chart.resize();
+        }
+      }
+    });
+  });
 });
 </script>
 
 </body>
 </html>
+
+"""
+
+path = "/mnt/data/theme3_triffic.html"
+Path(path).write_text(html, encoding="utf-8")
+path
