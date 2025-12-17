@@ -1,0 +1,79 @@
+
+theme4_path = "/mnt/data/theme4_review_reputation.html"
+theme4_html = """<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>分析主题四 · Review 口碑</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5"></script>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial;background:#f5f6f8;margin:0;padding:24px}
+h1{margin:0 0 6px}
+.subtitle{color:#555;margin-bottom:16px}
+.panel{background:#fff;border-radius:14px;padding:16px;margin-bottom:18px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.filters{display:grid;grid-template-columns:220px 220px 220px 180px 220px 260px;gap:14px}
+.filter-item{display:flex;flex-direction:column;font-size:13px}
+.filter-item label{margin-bottom:6px;color:#666}
+.filter-item select,.filter-item input{padding:8px;border-radius:8px;border:1px solid #ccc}
+.chart-row{display:flex;gap:16px}
+.chart-box{flex:1;height:360px;background:#fff;border-radius:14px;padding:10px;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.note{font-size:13px;color:#666;margin-top:6px}
+</style>
+</head>
+<body>
+<h1>分析主题四：Review 口碑</h1>
+<div class="subtitle">目标：衡量用户口碑对转化与复购的影响</div>
+<div class="panel">
+  <div class="filters">
+    <div class="filter-item"><label>销售时间</label><input value="2025-11-01 ~ 2025-11-30"/></div>
+    <div class="filter-item"><label>场景</label>
+      <select multiple><option>基础场景</option><option>行政场景</option><option>H 场景</option><option>S 场景</option></select>
+    </div>
+    <div class="filter-item"><label>国家</label>
+      <select multiple><option>US</option><option>DE</option><option>UK</option></select>
+    </div>
+    <div class="filter-item"><label>类型</label>
+      <select><option>主销品</option><option>搭售件</option></select>
+    </div>
+    <div class="filter-item"><label>YSPU</label>
+      <select><option>v0.7整桌</option><option>柜子</option></select>
+    </div>
+    <div class="filter-item"><label>YSKU</label>
+      <select><option>示例 SKU</option></select>
+    </div>
+  </div>
+</div>
+<div class="chart-row">
+  <div class="chart-box" id="siteReview"></div>
+  <div class="chart-box" id="googleReview"></div>
+</div>
+<div class="note">左：站内口碑趋势；右：外部口碑趋势</div>
+<script>
+const months=["7月","8月","9月","10月","11月"];
+echarts.init(document.getElementById("siteReview")).setOption({
+  title:{text:"站内评分 & 评论数"},
+  tooltip:{trigger:"axis"},
+  legend:{data:["评分","评论数"]},
+  xAxis:{type:"category",data:months},
+  yAxis:[{type:"value",min:3,max:5},{type:"value"}],
+  series:[
+    {name:"评分",type:"line",data:[4.3,4.4,4.4,4.5,4.6]},
+    {name:"评论数",type:"line",data:[120,140,160,180,210],yAxisIndex:1}
+  ]
+});
+echarts.init(document.getElementById("googleReview")).setOption({
+  title:{text:"Google 评分 & 评论数"},
+  tooltip:{trigger:"axis"},
+  legend:{data:["评分","评论数"]},
+  xAxis:{type:"category",data:months},
+  yAxis:[{type:"value",min:3,max:5},{type:"value"}],
+  series:[
+    {name:"评分",type:"line",data:[4.2,4.25,4.3,4.35,4.4]},
+    {name:"评论数",type:"line",data:[80,95,110,130,160],yAxisIndex:1}
+  ]
+});
+</script>
+</body>
+</html>
+"""
+Path(theme4_path).write_text(theme4_html, encoding="utf-8")
