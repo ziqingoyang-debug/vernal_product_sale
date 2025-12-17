@@ -1,33 +1,80 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<title>商品销售分析看板 - 首页</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style>
-body { font-family: Arial, sans-serif; padding: 40px; background: #fafafa; }
-h1 { font-size: 28px; }
-ul { list-style: none; padding: 0; }
-li { margin: 14px 0; }
-a {
-    font-size: 20px;
-    text-decoration: none;
-    color: #2a5cff;
-}
-a:hover { text-decoration: underline; }
-</style>
+  <meta charset="UTF-8" />
+  <title>商品销售分析看板 · 首页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+      background:#f5f6f8;
+      margin:0;
+      padding:40px;
+      color:#222;
+    }
+    h1{font-size:28px;margin-bottom:8px}
+    .subtitle{color:#555;margin-bottom:32px}
+    ul{list-style:none;padding:0;max-width:760px}
+    li{margin-bottom:16px}
+    a{
+      display:block;
+      padding:16px 20px;
+      background:#fff;
+      border-radius:12px;
+      text-decoration:none;
+      color:#2a5cff;
+      font-size:18px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+      transition:.15s;
+    }
+    a:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 16px rgba(0,0,0,.1);
+    }
+    .desc{
+      display:block;
+      margin-top:6px;
+      font-size:14px;
+      color:#666;
+    }
+  </style>
 </head>
-
 <body>
+
 <h1>📊 商品销售分析看板</h1>
-<p>请选择需要查看的分析主题：</p>
+<div class="subtitle">商品 × 流量 × 口碑 × 断货影响（Demo）</div>
 
 <ul>
-    <li><a href="theme1_yspu_sales.html">主题 1：YSPU销售表现</a></li>
-    <li><a href="theme2_main_spu_attach_rate.html">主题 2：搭售率分析</a></li>
-    <li><a href="theme3_triffic.html">主题 3：流量转化表现</a></li>
-    <li><a href="theme4_review_reputation.html">主题 4：Review 口碑</a></li>
-    <li><a href="theme5_stockout_impact.html">主题 5：断货影响</a></li>
+  <li>
+    <a href="theme1_yspu_sales.html">
+      主题 1：YSPU 销售表现
+      <span class="desc">销量 / 单独销量 / 搭售销量拆解</span>
+    </a>
+  </li>
+  <li>
+    <a href="theme2_main_spu_attach_rate.html">
+      主题 2：搭售率分析
+      <span class="desc">主销品带动搭售件能力评估</span>
+    </a>
+  </li>
+  <li>
+    <a href="theme3_triffic.html">
+      主题 3：流量转化表现
+      <span class="desc">广告流量、转化率、费比</span>
+    </a>
+  </li>
+  <li>
+    <a href="theme4_review_reputation.html">
+      主题 4：Review 口碑
+      <span class="desc">站内 / 站外评分趋势</span>
+    </a>
+  </li>
+  <li>
+    <a href="theme5_stockout_impact.html">
+      主题 5：断货影响
+      <span class="desc">断货天数与销售损失</span>
+    </a>
+  </li>
 </ul>
 
 </body>
